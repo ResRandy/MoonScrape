@@ -34,4 +34,5 @@ You can use `pyinstaller`
 2. run `pyinstaller --onefile src\moon_scrape_app.py`
 
 ## Known issues
-The program isn't 100% accurate when scraping the data. The idea was that you would have to rerun the program multiple times to ensure accurate data. This can be changed later on.
+1. The program isn't 100% accurate when scraping the data. The idea was that you would have to rerun the program multiple times to ensure accurate data. 
+- We tested Selenium's `WebDriverWait` to smooth this over which haddn't worked and the original used `time.sleep()` which had the same issue. 
