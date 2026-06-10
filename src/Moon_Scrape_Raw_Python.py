@@ -7,6 +7,10 @@ import docx
 import time
 import pandas as pd
 from datetime import datetime, timedelta
+import openpyxl
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+
 
 def days_between(d1, d2):
     """
@@ -111,12 +115,53 @@ def doc_to_excel_Moon_Data(File_Name:str, latitiude:str, longitude:str, new_exce
     Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
     Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last new moon
     
+    print("Creating Excel Sheet")
+    filename = File_Name.rsplit("/", 1)
+    wb = openpyxl.Workbook()
+    wb.save(filename[0] + "/" + new_excel_name + ".xlsx")
+
     print("Begin Web Scraping")
+    
 
     for ind in df.index:
         year = df['Dates'][ind][:4]                 # Grabbing the year 
         month = df['Dates'][ind][5:7]               # grabbing our month
         day = df['Dates'][ind][8:10]                # Grabbing our day
+
+        if ind % 200 == 0:
+            print(f"saving data to excel at {ind}")
+            df_append = pd.DataFrame({'Descriptions':Descriptions, "Dates":Dates, "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
+                             "Moon Set":Moon_Set, "Moon Distance (km)":Moon_Distance,"Moon Altitude (°)":Moon_Altitude,
+                             "Moon Azimuth (°)":Moon_Azimuth, "Moon Phase":Moon_Phase,"Disk Illumination (%)":Disk_Illumination,
+                             "Next New Moon Date":Next_New_Moon_Date, "Days Till Next New Moon":Days_Till_Next_New_Moon,
+                             "Next Full Moon Date":Next_Full_Moon_Date, "Days Till Full New Moon":Days_Till_Next_Full_Moon,
+                             "Prev New Moon Date":Prev_New_Moon_Date, "Days Since New Moon":Days_Since_Prev_New_Moon,
+                             "Prev Full Moon Date":Prev_Full_Moon_Date, "Days Since Full New Moon":Days_Since_Prev_Full_Moon,
+                             "URL":URL})
+            wb = load_workbook(File_Name)
+            for r in dataframe_to_rows(df_append, index=False, header=False):
+                wb.append(r)
+            wb.save(File_Name)
+            
+            URL = []                                        # this will hold the URL used to scrape the data
+            Moon_Rise = []                                  # this will hold the time that the moon rose that day
+            Moon_Culmination = []                           # this will hold the the time the moon passes over the meridian (culmination)
+            Moon_Set = []                                   # this will hold the time when the moon touches the horizon
+            Moon_Distance = []                              # this will hold the distance the moon is from the earth
+            Moon_Altitude = []                              # this will hold the Altitude: The angle between the center of moon and the horizon including refraction.
+            Moon_Azimuth = []                               # this will hold the Azimuth: The angle between the meridional plane of the earth and the vertical plane of the moon.
+            Moon_Phase = []                                 # this will hold the moon phase
+            Disk_Illumination = []                          # this will hold the percentage of the disk that is illuminated
+            # Calculations
+            Next_New_Moon_Date = []                         # this will hold the date of the next new moon
+            Days_Till_Next_New_Moon = []                    # this will hold the number of days until the next new moon
+            Next_Full_Moon_Date = []                        # this will hold the date of the next full moon
+            Days_Till_Next_Full_Moon = []                   # this will hold the number of days until the next full moon             
+            Prev_New_Moon_Date = []                         # this will hold the date of the previous new moon
+            Days_Since_Prev_New_Moon = []                   # this will hold the number of days since the last new moon
+            Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
+            Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last full moon
+
 
         # creating the URL we will scrape our data from
         url = "https://www.mooncalc.org/#/" + latitiude + "," + longitude + ",3/" + year + "." + month + "." + day + "/00:00/1/3"
@@ -227,9 +272,14 @@ def doc_to_excel_Moon_Data(File_Name:str, latitiude:str, longitude:str, new_exce
                              "URL":URL})
     
     # created the moon scrape dataframe, now creating new Excel Sheet
-    filename = File_Name.rsplit("/", 1)
-    print(filename[0] + new_excel_name + ".xlsx")
-    df_final.to_excel(filename[0]  + "/" + new_excel_name + ".xlsx")
+    wb = load_workbook(File_Name)
+    for r in dataframe_to_rows(df_final, index=False, header=False):
+        wb.append(r)
+    wb.save(File_Name)
+
+    # filename = File_Name.rsplit("/", 1)
+    # print(filename[0] + new_excel_name + ".xlsx")
+    # df_final.to_excel(filename[0]  + "/" + new_excel_name + ".xlsx")
 
     print("Scraping of Moon Data Complete!!!")
 
@@ -299,6 +349,12 @@ def excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:str,
     Days_Since_Prev_New_Moon = []                   # this will hold the number of days since the last new moon
     Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
     Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last new moon
+
+    print("Creating Excel Sheet")
+    filename = File_Name.rsplit("/", 1)
+    wb = openpyxl.Workbook()
+    wb.save(filename[0] + "/" + new_excel_name + ".xlsx")
+
     
     print("Begin Web Scraping")
 
@@ -309,6 +365,39 @@ def excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:str,
         month = df['Dates'][ind][5:7]               # storing month
         day = df['Dates'][ind][8:10]                # storing day
         data_time = df['Dates'][ind][11:16]         # storing time hh:mm
+        if ind % 200 == 0:
+            print(f"saving data to excel at {ind}")
+            df_append = pd.DataFrame({'Descriptions':Descriptions, "Dates":Dates, "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
+                             "Moon Set":Moon_Set, "Moon Distance (km)":Moon_Distance,"Moon Altitude (°)":Moon_Altitude,
+                             "Moon Azimuth (°)":Moon_Azimuth, "Moon Phase":Moon_Phase,"Disk Illumination (%)":Disk_Illumination,
+                             "Next New Moon Date":Next_New_Moon_Date, "Days Till Next New Moon":Days_Till_Next_New_Moon,
+                             "Next Full Moon Date":Next_Full_Moon_Date, "Days Till Full New Moon":Days_Till_Next_Full_Moon,
+                             "Prev New Moon Date":Prev_New_Moon_Date, "Days Since New Moon":Days_Since_Prev_New_Moon,
+                             "Prev Full Moon Date":Prev_Full_Moon_Date, "Days Since Full New Moon":Days_Since_Prev_Full_Moon,
+                             "URL":URL})
+            wb = load_workbook(File_Name)
+            for r in dataframe_to_rows(df_append, index=False, header=False):
+                wb.append(r)
+            wb.save(File_Name)
+            
+            URL = []                                        # this will hold the URL used to scrape the data
+            Moon_Rise = []                                  # this will hold the time that the moon rose that day
+            Moon_Culmination = []                           # this will hold the the time the moon passes over the meridian (culmination)
+            Moon_Set = []                                   # this will hold the time when the moon touches the horizon
+            Moon_Distance = []                              # this will hold the distance the moon is from the earth
+            Moon_Altitude = []                              # this will hold the Altitude: The angle between the center of moon and the horizon including refraction.
+            Moon_Azimuth = []                               # this will hold the Azimuth: The angle between the meridional plane of the earth and the vertical plane of the moon.
+            Moon_Phase = []                                 # this will hold the moon phase
+            Disk_Illumination = []                          # this will hold the percentage of the disk that is illuminated
+            # Calculations
+            Next_New_Moon_Date = []                         # this will hold the date of the next new moon
+            Days_Till_Next_New_Moon = []                    # this will hold the number of days until the next new moon
+            Next_Full_Moon_Date = []                        # this will hold the date of the next full moon
+            Days_Till_Next_Full_Moon = []                   # this will hold the number of days until the next full moon             
+            Prev_New_Moon_Date = []                         # this will hold the date of the previous new moon
+            Days_Since_Prev_New_Moon = []                   # this will hold the number of days since the last new moon
+            Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
+            Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last full moon
 
         url = "https://www.mooncalc.org/#/" + latitiude + "," + longitude + ",3/" + year + "." + month + "." + day + "/" + data_time +"/1/3"
         print("URL: ", url)
@@ -418,9 +507,14 @@ def excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:str,
                              "URL":URL})
     
     # created the moon scrape dataframe, now adding it to excel sheet
-    filename = File_Name.rsplit("/", 1)
-    print(filename[0] + new_excel_name + ".xlsx")
-    df_final.to_excel(filename[0]  + "/" + new_excel_name + ".xlsx")
+    wb = load_workbook(File_Name)
+    for r in dataframe_to_rows(df_final, index=False, header=False):
+        wb.append(r)
+    wb.save(File_Name)
+
+    # filename = File_Name.rsplit("/", 1)
+    # print(filename[0] + new_excel_name + ".xlsx")
+    # df_final.to_excel(filename[0]  + "/" + new_excel_name + ".xlsx")
 
 
     print("Scraping of Moon Data Complete!!!")
@@ -500,7 +594,28 @@ def L_excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:st
     Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
     Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last new moon
     
+    
+    
+    print("Creating Excel Sheet")
+    
+    df_s = pd.DataFrame({'Descriptions':Descriptions[0], "Dates":Dates[0], "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
+                             "Moon Set":Moon_Set, "Moon Distance (km)":Moon_Distance,"Moon Altitude (°)":Moon_Altitude,
+                             "Moon Azimuth (°)":Moon_Azimuth, "Moon Phase":Moon_Phase,"Disk Illumination (%)":Disk_Illumination,
+                             "Next New Moon Date":Next_New_Moon_Date, "Days Till Next New Moon":Days_Till_Next_New_Moon,
+                             "Next Full Moon Date":Next_Full_Moon_Date, "Days Till Full New Moon":Days_Till_Next_Full_Moon,
+                             "Prev New Moon Date":Prev_New_Moon_Date, "Days Since New Moon":Days_Since_Prev_New_Moon,
+                             "Prev Full Moon Date":Prev_Full_Moon_Date, "Days Since Full New Moon":Days_Since_Prev_Full_Moon,
+                             "URL":URL})
+    hearder_row = list(df_s.columns)
+    filename = File_Name.rsplit("/", 1)
+    file = filename[0] + "/" + new_excel_name + ".xlsx"
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Scraper Output"
+    ws.append(hearder_row)
+    wb.save(file)
     print("Begin Web Scraping")
+    final = 0
 
     # going though each row of the inputted excel sheet
     for ind in df.index:
@@ -511,6 +626,43 @@ def L_excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:st
         data_time = df['Dates'][ind][11:16]         # storing time hh:mm of the current row
         latitude = df["Latitude"][ind]              # stores the latitude of the current row
         longitude = df['Longitude'][ind]            # stores the longitude of the current row
+
+        if ind % 50 == 0 and ind != 0:                                         #sending every 200 rows into excel so we don't run out of memory potentially
+            print(f"saving data to excel at {ind}")
+            print(f'descriptions: {len(Descriptions[ind-50:ind])}, Dates: {len(Dates[ind-50:ind])}, Moon Rise: {len(Moon_Rise)}, Moon Culmination: {len(Moon_Culmination)}, Moon Set: {len(Moon_Set)}, Moon Distance: {len(Moon_Distance)}, Moon Altitude: {len(Moon_Altitude)}, Moon Azimuth: {len(Moon_Azimuth)}, Moon Phase: {len(Moon_Phase)}, Disk Illumination: {len(Disk_Illumination)}, Next New Moon Date: {len(Next_New_Moon_Date)}, Days Till Next New Moon: {len(Days_Till_Next_New_Moon)}, Next Full Moon Date: {len(Next_Full_Moon_Date)}, Days Till Next Full Moon: {len(Days_Till_Next_Full_Moon)}, Prev New Moon Date: {len(Prev_New_Moon_Date)}, Days Since Prev New Moon: {len(Days_Since_Prev_New_Moon)}, Prev Full Moon Date: {len(Prev_Full_Moon_Date)}, Days Since Prev Full Moon: {len(Days_Since_Prev_Full_Moon)}, URL: {len(URL)}')
+            df_append = pd.DataFrame({'Descriptions':Descriptions[ind-50:ind], "Dates":Dates[ind-50:ind], "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
+                             "Moon Set":Moon_Set, "Moon Distance (km)":Moon_Distance,"Moon Altitude (°)":Moon_Altitude,
+                             "Moon Azimuth (°)":Moon_Azimuth, "Moon Phase":Moon_Phase,"Disk Illumination (%)":Disk_Illumination,
+                             "Next New Moon Date":Next_New_Moon_Date, "Days Till Next New Moon":Days_Till_Next_New_Moon,
+                             "Next Full Moon Date":Next_Full_Moon_Date, "Days Till Full New Moon":Days_Till_Next_Full_Moon,
+                             "Prev New Moon Date":Prev_New_Moon_Date, "Days Since New Moon":Days_Since_Prev_New_Moon,
+                             "Prev Full Moon Date":Prev_Full_Moon_Date, "Days Since Full New Moon":Days_Since_Prev_Full_Moon,
+                             "URL":URL})
+            wb = load_workbook(file)
+            ws = wb["Scraper Output"]
+            for r in dataframe_to_rows(df_append, index=False, header=False):
+                ws.append(r)
+            wb.save(file)
+            
+            URL = []                                        # this will hold the URL used to scrape the data
+            Moon_Rise = []                                  # this will hold the time that the moon rose that day
+            Moon_Culmination = []                           # this will hold the the time the moon passes over the meridian (culmination)
+            Moon_Set = []                                   # this will hold the time when the moon touches the horizon
+            Moon_Distance = []                              # this will hold the distance the moon is from the earth
+            Moon_Altitude = []                              # this will hold the Altitude: The angle between the center of moon and the horizon including refraction.
+            Moon_Azimuth = []                               # this will hold the Azimuth: The angle between the meridional plane of the earth and the vertical plane of the moon.
+            Moon_Phase = []                                 # this will hold the moon phase
+            Disk_Illumination = []                          # this will hold the percentage of the disk that is illuminated
+            # Calculations
+            Next_New_Moon_Date = []                         # this will hold the date of the next new moon
+            Days_Till_Next_New_Moon = []                    # this will hold the number of days until the next new moon
+            Next_Full_Moon_Date = []                        # this will hold the date of the next full moon
+            Days_Till_Next_Full_Moon = []                   # this will hold the number of days until the next full moon             
+            Prev_New_Moon_Date = []                         # this will hold the date of the previous new moon
+            Days_Since_Prev_New_Moon = []                   # this will hold the number of days since the last new moon
+            Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
+            Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last full moon
+            final = ind                                     # this will hold the index of the last rows in data and descriptions needed
 
         url = "https://www.mooncalc.org/#/" + latitude + "," + longitude + ",3/" + year + "." + month + "." + day + "/" + data_time +"/1/3"
         URL.append(url)                             # Adding constructed URL to list 
@@ -598,7 +750,8 @@ def L_excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:st
         
         
         driver.delete_all_cookies()
-        # Loop Complete, onto the next row + URL
+        # Loop Complete, onto the next row + URLs
+
 
     print("Complete Web Scraping")
 
@@ -607,7 +760,7 @@ def L_excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:st
     print("Driver Closed")
     
     # creating our final daraframe 
-    df_final = pd.DataFrame({'Descriptions':Descriptions, "Dates":Dates, "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
+    df_final = pd.DataFrame({'Descriptions':Descriptions[final:], "Dates":Dates[final:], "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
                              "Moon Set":Moon_Set, "Moon Distance (km)":Moon_Distance,"Moon Altitude (°)":Moon_Altitude,
                              "Moon Azimuth (°)":Moon_Azimuth, "Moon Phase":Moon_Phase,"Disk Illumination (%)":Disk_Illumination,
                              "Next New Moon Date":Next_New_Moon_Date, "Days Till Next New Moon":Days_Till_Next_New_Moon,
@@ -617,9 +770,15 @@ def L_excel_to_new_excel_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column:st
                              "URL":URL})
     
     # created the moon scrape dataframe, now adding it to excel sheet
-    filename = File_Name.rsplit("/", 1)
-    print(filename[0] + new_excel_name + ".xlsx")
-    df_final.to_excel(filename[0]  + "/" + new_excel_name + ".xlsx")
+    wb = load_workbook(file)
+    ws = wb["Scraper Output"]
+    for r in dataframe_to_rows(df_final, index=False, header=False):
+        ws.append(r)
+    wb.save(file)
+
+    # filename = File_Name.rsplit("/", 1)
+    # print(filename[0] + new_excel_name + ".xlsx")
+    # df_final.to_excel(filename[0]  + "/" + new_excel_name + ".xlsx")
 
 
     print("Scraping of Moon Data Complete!!!")
@@ -691,6 +850,11 @@ def excel_to_new_sheet_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column_Name
     Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
     Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last new moon
     
+    print("Creating Excel Sheet")
+    filename = File_Name.rsplit("/", 1)
+    wb = openpyxl.Workbook()
+    wb.save(filename[0] + "/" + New_Sheet_Name + ".xlsx")
+
     print("Begin Web Scraping")
 
     # Moving through initial dataframe to scrape for each date
@@ -699,6 +863,40 @@ def excel_to_new_sheet_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column_Name
         month = df['Dates'][ind][5:7]
         day = df['Dates'][ind][8:10]
         data_time = df['Dates'][ind][11:16]
+
+        if ind % 200 == 0 and ind != 0:
+            print(f"saving data to excel at {ind}")
+            df_append = pd.DataFrame({'Descriptions':Descriptions, "Dates":Dates, "Moon Rise":Moon_Rise, "Moon Culmination":Moon_Culmination,
+                             "Moon Set":Moon_Set, "Moon Distance (km)":Moon_Distance,"Moon Altitude (°)":Moon_Altitude,
+                             "Moon Azimuth (°)":Moon_Azimuth, "Moon Phase":Moon_Phase,"Disk Illumination (%)":Disk_Illumination,
+                             "Next New Moon Date":Next_New_Moon_Date, "Days Till Next New Moon":Days_Till_Next_New_Moon,
+                             "Next Full Moon Date":Next_Full_Moon_Date, "Days Till Full New Moon":Days_Till_Next_Full_Moon,
+                             "Prev New Moon Date":Prev_New_Moon_Date, "Days Since New Moon":Days_Since_Prev_New_Moon,
+                             "Prev Full Moon Date":Prev_Full_Moon_Date, "Days Since Full New Moon":Days_Since_Prev_Full_Moon,
+                             "URL":URL})
+            wb = load_workbook(File_Name)
+            for r in dataframe_to_rows(df_append, index=False, header=False):
+                wb.append(r)
+            wb.save(File_Name)
+            
+            URL = []                                        # this will hold the URL used to scrape the data
+            Moon_Rise = []                                  # this will hold the time that the moon rose that day
+            Moon_Culmination = []                           # this will hold the the time the moon passes over the meridian (culmination)
+            Moon_Set = []                                   # this will hold the time when the moon touches the horizon
+            Moon_Distance = []                              # this will hold the distance the moon is from the earth
+            Moon_Altitude = []                              # this will hold the Altitude: The angle between the center of moon and the horizon including refraction.
+            Moon_Azimuth = []                               # this will hold the Azimuth: The angle between the meridional plane of the earth and the vertical plane of the moon.
+            Moon_Phase = []                                 # this will hold the moon phase
+            Disk_Illumination = []                          # this will hold the percentage of the disk that is illuminated
+            # Calculations
+            Next_New_Moon_Date = []                         # this will hold the date of the next new moon
+            Days_Till_Next_New_Moon = []                    # this will hold the number of days until the next new moon
+            Next_Full_Moon_Date = []                        # this will hold the date of the next full moon
+            Days_Till_Next_Full_Moon = []                   # this will hold the number of days until the next full moon             
+            Prev_New_Moon_Date = []                         # this will hold the date of the previous new moon
+            Days_Since_Prev_New_Moon = []                   # this will hold the number of days since the last new moon
+            Prev_Full_Moon_Date = []                        # this will hold the date of the previous full moon
+            Days_Since_Prev_Full_Moon = []                  # this will hold the number of days since the last full moon
 
         url = "https://www.mooncalc.org/#/" + latitiude + "," + longitude + ",3/" + year + "." + month + "." + day + "/" + data_time +"/1/3"
         URL.append(url)                             # Adding constructed URL to list 
@@ -806,13 +1004,18 @@ def excel_to_new_sheet_Moon_Data(File_Name:str, Sheet_Name:str, Date_Column_Name
                              "URL":URL})
     
     # created the moon scrape dataframe, now adding it to excel sheet
-    with pd.ExcelWriter(
-            File_Name,
-            mode="a",
-            engine="openpyxl",
-            if_sheet_exists="replace",
-        ) as writer:
-        df_final.to_excel(writer, sheet_name=New_Sheet_Name) 
+    wb = load_workbook(File_Name)
+    for r in dataframe_to_rows(df_final, index=False, header=False):
+        wb.append(r)
+    wb.save(File_Name)
+
+    # with pd.ExcelWriter(
+    #         File_Name,
+    #         mode="a",
+    #         engine="openpyxl",
+    #         if_sheet_exists="replace",
+    #     ) as writer:
+    #     df_final.to_excel(writer, sheet_name=New_Sheet_Name) 
 
     print("Scraping of Moon Data Complete!!!")
     
